@@ -1,6 +1,8 @@
 # Libraries needed
 library(factoextra)
 library(cluster)
+library(ggplot2)
+library(corrplot)
 
 # Load and view dataset
 Obesity = read.csv("ObesityDataSet_raw_and_data.csv")
@@ -9,6 +11,57 @@ View(Obesity)
 
 # Preprocessing dataset
 colSums(is.na(Obesity)) # Data is good 
+
+
+
+# Exploratory Data Analysis
+
+summary(Obesity)
+
+
+# Bar Charts
+
+Obesity$Gender = factor(Obesity$Gender, levels = c(0, 1), labels = c("Male", "Female"))
+Obesity$SMOKE = factor(Obesity$SMOKE, levels = c(0, 1), labels = c("Smoker", "Not Smoker"))
+
+ggplot(Obesity, aes(x = Gender)) + 
+  geom_bar(fill = "skyblue") +
+  labs(title = "Gender Distribution", x = "Gender", y = "Frequency")
+
+ggplot(Obesity, aes(x = SMOKE)) + 
+  geom_bar(fill = "salmon") +
+  labs(title = "Smoking Status", x = "Smoker", y = "Frequency")
+
+
+# Histograms
+
+ggplot(Obesity, aes(x = Age)) + 
+  geom_histogram(bins = 30, fill = "lightgreen", color = "black") +
+  labs(title = "Age Distribution", x = "Age", y = "Frequency")
+
+ggplot(Obesity, aes(x = Weight)) + 
+  geom_histogram(bins = 30, fill = "lightblue", color = "black") +
+  labs(title = "Weight Distribution", x = "Weight", y = "Frequency")
+
+ggplot(Obesity, aes(x = FCVC)) + 
+  geom_histogram(bins = 30, fill = "lightyellow", color = "black") +
+  labs(title = "FCVC Distribution", x = "FCVC", y = "Frequency")
+
+ggplot(Obesity, aes(x = NCP)) + 
+  geom_histogram(bins = 30, fill = "purple", color = "black") +
+  labs(title = "NCP Distribution", x = "NCP", y = "Frequency")
+
+ggplot(Obesity, aes(x = FAF)) + 
+  geom_histogram(bins = 30, fill = "green", color = "black") +
+  labs(title = "FAF Distribution", x = "FAF", y = "Frequency")
+
+
+# Scatterplot Matrix
+
+Obesity_numeric <- Obesity[, sapply(Obesity, is.numeric)]
+
+plot(Obesity_numeric)
+
 
 
 # Convert categorical to numeric
