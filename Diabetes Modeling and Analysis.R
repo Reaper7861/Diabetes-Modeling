@@ -8,10 +8,8 @@ library(corrplot)
 Obesity = read.csv("ObesityDataSet_raw_and_data.csv")
 View(Obesity)
 
-
 # Preprocessing dataset
 colSums(is.na(Obesity)) # Data is good 
-
 
 
 # Exploratory Data Analysis
