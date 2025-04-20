@@ -80,6 +80,7 @@ ObesityScaled <- scale(ObesityNumeric)
 
 # K-Mean clustering with full dataset
 # Finding optimal K value via gap statistic 
+set.seed(4323)
 km.out = eclust(ObesityScaled, FUNcluster = "kmeans", nstart=50, nboot=50) 
 km.out
 # Plot Gap Statistic
@@ -87,8 +88,8 @@ fviz_nbclust(ObesityScaled, kmeans, nstart = 50, nboot = 50, method = "gap_stat"
 
 
 # Finding optimal k via elbow method
+set.seed(4323)
 wss.list = numeric(15)
-set.seed(1)
 
 for(m in 1:15){
   km.out = eclust(x = data.frame(ObesityScaled), FUNcluster = "kmeans", 
@@ -101,6 +102,7 @@ plot(1:15, wss.list, type = "b", pch = 19, frame = FALSE,
 
 
 # Finding optimal K via largest silhouette coefficient
+set.seed(4323)
 k.max = 15
 silh.coef = numeric(k.max)
 for(k in 2:15){
@@ -111,6 +113,7 @@ which.max(silh.coef) # K = 2 optimal K
 
 
 # K-Mean clustering with K = 10
+set.seed(4323)
 km.out=eclust(ObesityScaled, FUNcluster = "kmeans", k = 10, nstart=50) # K = 10 Optimal K
 km.out
 
@@ -126,6 +129,7 @@ fviz_silhouette(sil)
 
 
 # K-Mean clustering with K = 5
+set.seed(4323)
 km.out=eclust(ObesityScaled, FUNcluster = "kmeans", k = 5, nstart=50) # K = 5 Optimal K
 km.out
 
@@ -141,6 +145,7 @@ fviz_silhouette(sil)
 
 
 # K-Mean clustering with K = 2
+set.seed(4323)
 km.out=eclust(ObesityScaled, FUNcluster = "kmeans", k = 2, nstart=50) # K = 2 Optimal K
 km.out
 
@@ -157,6 +162,7 @@ fviz_silhouette(sil)
 
 # Optimal clustering
 # K-Mean clustering with K = 10
+set.seed(4323)
 km.optimal=eclust(ObesityScaled, FUNcluster = "kmeans", k = 10, nstart=50) # K = 10 Optimal K
 km.optimal
 
@@ -174,6 +180,7 @@ lifestyle_features = subset(ObesityNumeric, select = c(FAVC, FCVC, NCP, CAEC, CH
 lifestyle_scaled = scale(lifestyle_features)
 
 # K-Mean clustering with K = 10
+set.seed(4323)
 km_lifestyle=eclust(lifestyle_scaled, FUNcluster = "kmeans", k = 10, nstart=50)
 km_lifestyle
 
@@ -193,6 +200,7 @@ bmi_features = subset(ObesityNumeric, select = c(Age, Height, Weight, family_his
 bmi_scaled = scale(bmi_features)
 
 # K-Mean clustering with K = 10
+set.seed(4323)
 km_bmi=eclust(bmi_scaled, FUNcluster = "kmeans", k = 10, nstart=50) 
 km_bmi
 
@@ -212,6 +220,7 @@ combined_features = subset(ObesityNumeric, select = c(Age, Height, Weight, FCVC,
 combined_scaled = scale(combined_features)
 
 # K-Mean clustering with K = 10
+set.seed(4323)
 km_combined=eclust(combined_scaled, FUNcluster = "kmeans", k = 10, nstart=50)
 km_combined
 
