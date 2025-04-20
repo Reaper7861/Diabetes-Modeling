@@ -76,7 +76,7 @@ ObesityNumeric
 ObesityScaled <- scale(ObesityNumeric)
 
 
-# K-Means Clustering 
+# K-Means Clustering (Subhan and Julio)
 
 # K-Mean clustering with full dataset
 # Finding optimal K value via gap statistic 
@@ -227,7 +227,7 @@ fviz_silhouette(sil)
 
 
 
-# Hierarchical Clustering 
+# Hierarchical Clustering (Tony and Zach)
 
 # Single linkage (Best Linkage)
 hc_single = hclust(dist(ObesityScaled), method = "single")
