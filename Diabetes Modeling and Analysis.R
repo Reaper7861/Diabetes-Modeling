@@ -3,6 +3,7 @@ library(factoextra)
 library(cluster)
 library(ggplot2)
 library(corrplot)
+library(mclust)
 
 # Load and view dataset
 Obesity = read.csv("ObesityDataSet_raw_and_data.csv")
@@ -18,7 +19,6 @@ summary(Obesity)
 
 
 # Bar Charts
-
 Obesity$Gender = factor(Obesity$Gender, levels = c(0, 1), labels = c("Male", "Female"))
 Obesity$SMOKE = factor(Obesity$SMOKE, levels = c(0, 1), labels = c("Smoker", "Not Smoker"))
 
@@ -32,7 +32,6 @@ ggplot(Obesity, aes(x = SMOKE)) +
 
 
 # Histograms
-
 ggplot(Obesity, aes(x = Age)) + 
   geom_histogram(bins = 30, fill = "lightgreen", color = "black") +
   labs(title = "Age Distribution", x = "Age", y = "Frequency")
@@ -55,11 +54,8 @@ ggplot(Obesity, aes(x = FAF)) +
 
 
 # Scatterplot Matrix
-
 Obesity_numeric <- Obesity[, sapply(Obesity, is.numeric)]
-
 plot(Obesity_numeric)
-
 
 
 # Convert categorical to numeric
@@ -72,7 +68,6 @@ Obesity$CAEC <- as.integer(factor(Obesity$CAEC, levels = c("no", "Sometimes", "F
 Obesity$CALC <- as.integer(factor(Obesity$CALC, levels = c("no", "Sometimes", "Frequently", "Always")))
 Obesity$MTRANS <- as.numeric(factor(Obesity$MTRANS,levels = c("Walking", "Bike", "Motorbike", "Public_Transportation", "Automobile")))
 
-
 # Select numeric features
 ObesityNumeric <- Obesity[, sapply(Obesity, is.numeric)]
 ObesityNumeric
@@ -83,25 +78,36 @@ ObesityScaled <- scale(ObesityNumeric)
 
 # K-Means Clustering 
 
-
-# Finding optimal K value
-km.out = eclust(ObesityScaled, FUNcluster = "kmeans", nstart=50, nboot=50) # K = 10 Optimal K
+# K-Mean clustering with full dataset
+# Finding optimal K value via gap statistic 
+km.out = eclust(ObesityScaled, FUNcluster = "kmeans", nstart=50, nboot=50) 
 km.out
-
 # Plot Gap Statistic
-fviz_nbclust(ObesityScaled, kmeans, nstart = 50, nboot = 50, method = "gap_stat")
+fviz_nbclust(ObesityScaled, kmeans, nstart = 50, nboot = 50, method = "gap_stat") # K = 10 optimal K
 
 
-# Finding optimal K via largetst silhouette coefficient
+# Finding optimal k via elbow method
+wss.list = numeric(15)
+set.seed(1)
+
+for(m in 1:15){
+  km.out = eclust(x = data.frame(ObesityScaled), FUNcluster = "kmeans", 
+                 k = m, nstart = 50)
+  wss.list[m] = km.out$tot.withinss
+}
+
+plot(1:15, wss.list, type = "b", pch = 19, frame = FALSE, 
+     xlab = "Number of clusters", ylab = "Total WSS") # K = 5 optimal k 
+
+
+# Finding optimal K via largest silhouette coefficient
 k.max = 15
 silh.coef = numeric(k.max)
 for(k in 2:15){
   silh.coef[k] = eclust(ObesityScaled, FUNcluster = "kmeans", k = k, graph = 0, nstart = 50)$silinfo$avg.width
 }
-
 plot(silh.coef, type = "b", pch = 19, col = 4)
-
-which.max(silh.coef)
+which.max(silh.coef) # K = 2 optimal K 
 
 
 # K-Mean clustering with K = 10
@@ -110,6 +116,21 @@ km.out
 
 # Plot clusters
 fviz_cluster(km.out, data = ObesityScaled, main = "K-Means Clustering of Obesity Features with K=10")
+
+# Silhouette Coefficient
+km.out$silinfo
+
+# Silhouette Visuals
+sil = silhouette(km.out$cluster, dist(ObesityScaled))
+fviz_silhouette(sil)
+
+
+# K-Mean clustering with K = 5
+km.out=eclust(ObesityScaled, FUNcluster = "kmeans", k = 5, nstart=50) # K = 5 Optimal K
+km.out
+
+# Plot clusters
+fviz_cluster(km.out, data = ObesityScaled, main = "K-Means Clustering of Obesity Features with K=5")
 
 # Silhouette Coefficient
 km.out$silinfo
@@ -134,25 +155,26 @@ sil = silhouette(km.out$cluster, dist(ObesityScaled))
 fviz_silhouette(sil)
 
 
+# Optimal clustering
+# K-Mean clustering with K = 10
+km.optimal=eclust(ObesityScaled, FUNcluster = "kmeans", k = 10, nstart=50) # K = 10 Optimal K
+km.optimal
+
+# Plot clusters
+fviz_cluster(km.optimal, data = ObesityScaled, main = "K-Means Clustering of Obesity Features with K=10")
+
 
 
 # Specific Clustering
 
+# Choosing K = 10 as optimal k
 
 # Lifestyle & Dietary Habits Clustering
 lifestyle_features = subset(ObesityNumeric, select = c(FAVC, FCVC, NCP, CAEC, CH2O, FAF, TUE, SCC, MTRANS))
 lifestyle_scaled = scale(lifestyle_features)
 
-# Finding optimal K value
-km_lifestyle = eclust(lifestyle_scaled, FUNcluster = "kmeans", nstart=50, nboot=50) # K = 10 Optimal K
-km_lifestyle
-
-# Plot Gap Statistic
-fviz_nbclust(lifestyle_scaled, kmeans, nstart = 50, nboot = 50, method = "gap_stat")
-
-
 # K-Mean clustering with K = 10
-km_lifestyle=eclust(lifestyle_scaled, FUNcluster = "kmeans", k = 10, nstart=50) # K = 10 Optimal K
+km_lifestyle=eclust(lifestyle_scaled, FUNcluster = "kmeans", k = 10, nstart=50)
 km_lifestyle
 
 # Plot clusters
@@ -166,52 +188,16 @@ sil = silhouette(km_lifestyle$cluster, dist(lifestyle_scaled))
 fviz_silhouette(sil)
 
 
-# Finding optimal K via largest silhouette coefficient
-k.max = 15
-silh.coef = numeric(k.max)
-for(k in 2:15){
-  silh.coef[k] = eclust(lifestyle_scaled, FUNcluster = "kmeans", k = k, graph = 0, nstart = 50)$silinfo$avg.width
-}
-
-plot(silh.coef, type = "b", pch = 19, col = 4)
-
-which.max(silh.coef)
-
-
-# K-Mean clustering with K = 2
-km_lifestyle=eclust(lifestyle_scaled, FUNcluster = "kmeans", k = 2, nstart=50) # K = 2 Optimal K
-km_lifestyle
-
-# Plot clusters
-fviz_cluster(km_lifestyle, data = lifestyle_scaled, main = "K-Means Clustering of Lifestyle Features with K=2")
-
-# Silhouette Coefficient
-km_lifestyle$silinfo
-
-# Silhouette Visuals
-sil = silhouette(km_lifestyle$cluster, dist(lifestyle_scaled))
-fviz_silhouette(sil)
-
-
-
 # BMI & Health Risk Clustering
 bmi_features = subset(ObesityNumeric, select = c(Age, Height, Weight, family_history_with_overweight))
 bmi_scaled = scale(bmi_features)
 
-# Finding optimal K value
-km_bmi = eclust(bmi_scaled, FUNcluster = "kmeans", nstart=50, nboot=50) # K = 9 Optimal K
-km_bmi
-
-# Plot Gap Statistic
-fviz_nbclust(bmi_scaled, kmeans, nstart = 50, nboot = 50, method = "gap_stat")
-
-
-# K-Mean clustering with K = 9
-km_bmi=eclust(bmi_scaled, FUNcluster = "kmeans", k = 9, nstart=50) # K = 9 Optimal K
+# K-Mean clustering with K = 10
+km_bmi=eclust(bmi_scaled, FUNcluster = "kmeans", k = 10, nstart=50) 
 km_bmi
 
 # Plot clusters
-fviz_cluster(km_bmi, data = bmi_scaled, main = "K-Means Clustering of BMI Features with K=9")
+fviz_cluster(km_bmi, data = bmi_scaled, main = "K-Means Clustering of BMI Features with K=10")
 
 # Silhouette Coefficient
 km_bmi$silinfo
@@ -219,50 +205,14 @@ km_bmi$silinfo
 # Silhouette Visuals
 sil = silhouette(km_bmi$cluster, dist(bmi_scaled))
 fviz_silhouette(sil)
-
-
-# Finding optimal K via largest silhouette coefficient
-k.max = 15
-silh.coef = numeric(k.max)
-for(k in 2:15){
-  silh.coef[k] = eclust(bmi_scaled, FUNcluster = "kmeans", k = k, graph = 0, nstart = 50)$silinfo$avg.width
-}
-
-plot(silh.coef, type = "b", pch = 19, col = 4)
-
-which.max(silh.coef)
-
-
-# K-Mean clustering with K = 2
-km_bmi=eclust(bmi_scaled, FUNcluster = "kmeans", k = 2, nstart=50) # K = 2 Optimal K
-km_bmi
-
-# Plot clusters
-fviz_cluster(km_bmi, data = bmi_scaled, main = "K-Means Clustering of BMI Features with K=2")
-
-# Silhouette Coefficient
-km_bmi$silinfo
-
-# Silhouette Visuals
-sil = silhouette(km_bmi$cluster, dist(bmi_scaled))
-fviz_silhouette(sil)
-
 
 
 # Combined Lifestyle + BMI Clustering
 combined_features = subset(ObesityNumeric, select = c(Age, Height, Weight, FCVC, NCP, FAF, TUE, FAVC, CAEC, CH2O))
 combined_scaled = scale(combined_features)
 
-# Finding optimal K value
-km_combined = eclust(combined_scaled, FUNcluster = "kmeans", nstart=50, nboot=50) # K = 10 Optimal K
-km_combined
-
-# Plot Gap Statistic
-fviz_nbclust(combined_scaled, kmeans, nstart = 50, nboot = 50, method = "gap_stat")
-
-
 # K-Mean clustering with K = 10
-km_combined=eclust(combined_scaled, FUNcluster = "kmeans", k = 10, nstart=50) # K = 10 Optimal K
+km_combined=eclust(combined_scaled, FUNcluster = "kmeans", k = 10, nstart=50)
 km_combined
 
 # Plot clusters
@@ -276,28 +226,63 @@ sil = silhouette(km_combined$cluster, dist(combined_scaled))
 fviz_silhouette(sil)
 
 
-# Finding optimal K via largest silhouette coefficient
-k.max = 15
-silh.coef = numeric(k.max)
-for(k in 2:15){
-  silh.coef[k] = eclust(combined_scaled, FUNcluster = "kmeans", k = k, graph = 0, nstart = 50)$silinfo$avg.width
-}
 
-plot(silh.coef, type = "b", pch = 19, col = 4)
+# Hierarchical Clustering 
 
-which.max(silh.coef)
+# Single linkage (Best Linkage)
+hc_single = hclust(dist(ObesityScaled), method = "single")
+plot(hc_single, labels=FALSE, main="Single Linkage")
+single = cutree(hc_single, k = 10)
+
+# Complete linkage
+hc_complete = hclust(dist(ObesityScaled), method = "complete")
+plot(hc_complete, labels=FALSE, main="Complete Linkage")
+complete = cutree(hc_complete, k = 10)
+
+# Average linkage
+hc_average = hclust(dist(ObesityScaled), method = "average")
+plot(hc_average, labels=FALSE, main="Average Linkage")
+average = cutree(hc_average, k = 10)
+
+# Centroid Linkage
+hc_centroid = hclust(dist(ObesityScaled), method = "centroid")
+plot(hc_centroid, labels=FALSE, main="Centroid Linkage")
+centroid = cutree(hc_centroid, k = 10)
 
 
-# K-Mean clustering with K = 14
-km_combined=eclust(combined_scaled, FUNcluster = "kmeans", k = 14, nstart=50) # K = 14 Optimal K
-km_combined
+# Silhouette for single linkage (Best Linkage)
+sil_single = silhouette(single, dist(ObesityScaled))
+fviz_silhouette(sil_single)
+mean(sil_single[,3])
 
-# Plot clusters
-fviz_cluster(km_combined, data = combined_scaled, main = "K-Means Clustering of Combined Features with K=14")
+# Silhouette for complete linkage
+sil_complete = silhouette(complete, dist(ObesityScaled))
+fviz_silhouette(sil_complete)
+mean(sil_complete[,3])
 
-# Silhouette Coefficient
-km_combined$silinfo
+# Silhouette for average linkage
+sil_average = silhouette(average, dist(ObesityScaled))
+fviz_silhouette(sil_average)
+mean(sil_average[,3])
 
-# Silhouette Visuals
-sil = silhouette(km_combined$cluster, dist(combined_scaled))
-fviz_silhouette(sil)
+# Silhouette for centroid linkage
+sil_centroid = silhouette(centroid, dist(ObesityScaled))
+fviz_silhouette(sil_centroid)
+mean(sil_centroid[,3])
+
+
+
+# Posthoc Analyis
+external_labels = Obesity$NObeyesdad
+
+table(km.optimal$cluster, external_labels)
+adjustedRandIndex(km.optimal$cluster, external_labels)
+
+table(single, external_labels)
+adjustedRandIndex(single, external_labels)
+
+
+
+
+
+
