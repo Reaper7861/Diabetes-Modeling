@@ -19,16 +19,15 @@ summary(Obesity)
 
 
 # Bar Charts
-Obesity$Gender = factor(Obesity$Gender, levels = c(0, 1), labels = c("Male", "Female"))
-Obesity$SMOKE = factor(Obesity$SMOKE, levels = c(0, 1), labels = c("Smoker", "Not Smoker"))
+ggplot(Obesity, aes(x = Gender, fill = Gender)) + 
+  geom_bar() +
+  labs(title = "Gender Distribution", x = "Gender", y = "Frequency") +
+  scale_fill_manual(values = c("pink", "skyblue")) 
 
-ggplot(Obesity, aes(x = Gender)) + 
-  geom_bar(fill = "skyblue") +
-  labs(title = "Gender Distribution", x = "Gender", y = "Frequency")
-
-ggplot(Obesity, aes(x = SMOKE)) + 
-  geom_bar(fill = "salmon") +
-  labs(title = "Smoking Status", x = "Smoker", y = "Frequency")
+ggplot(Obesity, aes(x = SMOKE, fill = SMOKE)) + 
+  geom_bar() +
+  labs(title = "Smoking Status", x = "Smoking Status", y = "Frequency") +
+  scale_fill_manual(values = c("salmon", "gray"))
 
 
 # Histograms
