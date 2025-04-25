@@ -122,6 +122,12 @@ fviz_cluster(km.out, data = ObesityScaled, main = "K-Means Clustering of Obesity
 # Silhouette Coefficient
 km.out$silinfo
 
+# Total WSS
+km.out$tot.withinss
+
+# Between WSS
+km.out$betweenss
+
 # Silhouette Visuals
 sil = silhouette(km.out$cluster, dist(ObesityScaled))
 fviz_silhouette(sil)
@@ -138,9 +144,23 @@ fviz_cluster(km.out, data = ObesityScaled, main = "K-Means Clustering of Obesity
 # Silhouette Coefficient
 km.out$silinfo
 
+# Total WSS
+km.out$tot.withinss
+
+# Between WSS
+km.out$betweenss
+
 # Silhouette Visuals
 sil = silhouette(km.out$cluster, dist(ObesityScaled))
-fviz_silhouette(sil)
+fviz_silhouette(sil) +
+  theme(
+    text = element_text(size = 20),        
+    axis.title = element_text(size = 20),  
+    axis.text = element_text(size = 20),   
+    legend.title = element_text(size = 30),
+    legend.text = element_text(size = 30),
+    plot.title = element_text(size = 40)
+  )
 
 
 # K-Mean clustering with K = 2
@@ -154,9 +174,23 @@ fviz_cluster(km.out, data = ObesityScaled, main = "K-Means Clustering of Obesity
 # Silhouette Coefficient
 km.out$silinfo
 
+# Total WSS
+km.out$tot.withinss
+
+# Between WSS
+km.out$betweenss
+
 # Silhouette Visuals
 sil = silhouette(km.out$cluster, dist(ObesityScaled))
-fviz_silhouette(sil)
+fviz_silhouette(sil) +
+  theme(
+    text = element_text(size = 20),        
+    axis.title = element_text(size = 20),  
+    axis.text = element_text(size = 20),   
+    legend.title = element_text(size = 30),
+    legend.text = element_text(size = 30),
+    plot.title = element_text(size = 40)
+  )
 
 
 # Optimal clustering
@@ -237,7 +271,7 @@ fviz_silhouette(sil)
 
 # Hierarchical Clustering (Tony and Zach)
 
-# Single linkage (Best Linkage)
+# Single linkage
 hc_single = hclust(dist(ObesityScaled), method = "single")
 plot(hc_single, labels=FALSE, main="Single Linkage")
 single = cutree(hc_single, k = 10)
@@ -279,15 +313,38 @@ fviz_silhouette(sil_centroid)
 mean(sil_centroid[,3])
 
 
+# Single linkage (Best Linkage)
+hc_single_optimal = hclust(dist(ObesityScaled), method = "single")
+plot(hc_single_optimal, labels=FALSE, main="Single Linkage")
+single_optimal = cutree(hc_single_optimal, k = 10)
+
+# Silhouette for single linkage (Best Linkage)
+sil_single_optimal = silhouette(single_optimal, dist(ObesityScaled))
+fviz_silhouette(sil_single_optimal)
+mean(sil_single_optimal[,3])
+
 
 # Posthoc Analyis
+
+# Better Model?
+
+# K-Means Clustering
+sil = silhouette(km.optimal$cluster, dist(ObesityScaled))
+mean(sil[,3])
+
+# Hierarchical Clustering
+sil_single_optimal = silhouette(single_optimal, dist(ObesityScaled))
+mean(sil_single_optimal[,3])
+
+
+# External Validation (External Labels)
 external_labels = Obesity$NObeyesdad
 
 table(km.optimal$cluster, external_labels)
 adjustedRandIndex(km.optimal$cluster, external_labels)
 
-table(single, external_labels)
-adjustedRandIndex(single, external_labels)
+table(single_optimal, external_labels)
+adjustedRandIndex(single_optimal, external_labels)
 
 
 
