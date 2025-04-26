@@ -14,7 +14,6 @@ colSums(is.na(Obesity)) # Data is good
 
 
 # Exploratory Data Analysis
-
 summary(Obesity)
 
 
@@ -320,7 +319,15 @@ single_optimal = cutree(hc_single_optimal, k = 10)
 
 # Silhouette for single linkage (Best Linkage)
 sil_single_optimal = silhouette(single_optimal, dist(ObesityScaled))
-fviz_silhouette(sil_single_optimal)
+fviz_silhouette(sil_single_optimal) +
+  theme(
+    text = element_text(size = 20),        
+    axis.title = element_text(size = 20),  
+    axis.text = element_text(size = 20),   
+    legend.title = element_text(size = 30),
+    legend.text = element_text(size = 30),
+    plot.title = element_text(size = 40)
+  )
 mean(sil_single_optimal[,3])
 
 
