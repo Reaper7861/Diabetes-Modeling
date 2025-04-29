@@ -13,7 +13,7 @@ View(Obesity)
 colSums(is.na(Obesity)) # Data is good 
 
 
-# Exploratory Data Analysis
+# Exploratory Data Analysis (Subhan and Julio)
 summary(Obesity)
 
 
@@ -129,7 +129,15 @@ km.out$betweenss
 
 # Silhouette Visuals
 sil = silhouette(km.out$cluster, dist(ObesityScaled))
-fviz_silhouette(sil)
+fviz_silhouette(sil) +
+  theme(
+    text = element_text(size = 20),        
+    axis.title = element_text(size = 20),  
+    axis.text = element_text(size = 20),   
+    legend.title = element_text(size = 30),
+    legend.text = element_text(size = 30),
+    plot.title = element_text(size = 40)
+  )
 
 
 # K-Mean clustering with K = 5
@@ -193,7 +201,7 @@ fviz_silhouette(sil) +
 
 
 # Optimal clustering
-# K-Mean clustering with K = 10
+# K-Means Clustering with K = 10
 set.seed(4323)
 km.optimal=eclust(ObesityScaled, FUNcluster = "kmeans", k = 10, nstart=50) # K = 10 Optimal K
 km.optimal
@@ -201,74 +209,23 @@ km.optimal
 # Plot clusters
 fviz_cluster(km.optimal, data = ObesityScaled, main = "K-Means Clustering of Obesity Features with K=10")
 
-
-
-# Specific Clustering
-
-# Choosing K = 10 as optimal k
-
-# Lifestyle & Dietary Habits Clustering
-lifestyle_features = subset(ObesityNumeric, select = c(FAVC, FCVC, NCP, CAEC, CH2O, FAF, TUE, SCC, MTRANS))
-lifestyle_scaled = scale(lifestyle_features)
-
-# K-Mean clustering with K = 10
-set.seed(4323)
-km_lifestyle=eclust(lifestyle_scaled, FUNcluster = "kmeans", k = 10, nstart=50)
-km_lifestyle
-
-# Plot clusters
-fviz_cluster(km_lifestyle, data = lifestyle_scaled, main = "K-Means Clustering of Lifestyle Features with K=10")
-
-# Silhouette Coefficient
-km_lifestyle$silinfo
-
-# Silhouette Visuals
-sil = silhouette(km_lifestyle$cluster, dist(lifestyle_scaled))
-fviz_silhouette(sil)
-
-
-# BMI & Health Risk Clustering
-bmi_features = subset(ObesityNumeric, select = c(Age, Height, Weight, family_history_with_overweight))
-bmi_scaled = scale(bmi_features)
-
-# K-Mean clustering with K = 10
-set.seed(4323)
-km_bmi=eclust(bmi_scaled, FUNcluster = "kmeans", k = 10, nstart=50) 
-km_bmi
-
-# Plot clusters
-fviz_cluster(km_bmi, data = bmi_scaled, main = "K-Means Clustering of BMI Features with K=10")
-
-# Silhouette Coefficient
-km_bmi$silinfo
-
-# Silhouette Visuals
-sil = silhouette(km_bmi$cluster, dist(bmi_scaled))
-fviz_silhouette(sil)
-
-
-# Combined Lifestyle + BMI Clustering
-combined_features = subset(ObesityNumeric, select = c(Age, Height, Weight, FCVC, NCP, FAF, TUE, FAVC, CAEC, CH2O))
-combined_scaled = scale(combined_features)
-
-# K-Mean clustering with K = 10
-set.seed(4323)
-km_combined=eclust(combined_scaled, FUNcluster = "kmeans", k = 10, nstart=50)
-km_combined
-
-# Plot clusters
-fviz_cluster(km_combined, data = combined_scaled, main = "K-Means Clustering of Combined Features with K=10")
-
-# Silhouette Coefficient
-km_combined$silinfo
-
-# Silhouette Visuals
-sil = silhouette(km_combined$cluster, dist(combined_scaled))
-fviz_silhouette(sil)
+# Silhouette Plot of Optimal Cluster
+sil_optimal = silhouette(km.optimal$cluster, dist(ObesityScaled))
+fviz_silhouette(sil_optimal) +
+  theme(
+    text = element_text(size = 20),        
+    axis.title = element_text(size = 20),  
+    axis.text = element_text(size = 20),   
+    legend.title = element_text(size = 30),
+    legend.text = element_text(size = 30),
+    plot.title = element_text(size = 40)
+  )
 
 
 
 # Hierarchical Clustering (Tony and Zach)
+
+# Hierarchical Clustering with K = 10
 
 # Single linkage
 hc_single = hclust(dist(ObesityScaled), method = "single")
@@ -291,7 +248,7 @@ plot(hc_centroid, labels=FALSE, main="Centroid Linkage")
 centroid = cutree(hc_centroid, k = 10)
 
 
-# Silhouette for single linkage (Best Linkage)
+# Silhouette for single linkage 
 sil_single = silhouette(single, dist(ObesityScaled))
 fviz_silhouette(sil_single)
 mean(sil_single[,3])
@@ -306,20 +263,65 @@ sil_average = silhouette(average, dist(ObesityScaled))
 fviz_silhouette(sil_average)
 mean(sil_average[,3])
 
-# Silhouette for centroid linkage
+# Silhouette for centroid linkage (Best Linkage)
 sil_centroid = silhouette(centroid, dist(ObesityScaled))
 fviz_silhouette(sil_centroid)
 mean(sil_centroid[,3])
 
 
-# Single linkage (Best Linkage)
-hc_single_optimal = hclust(dist(ObesityScaled), method = "single")
-plot(hc_single_optimal, labels=FALSE, main="Single Linkage")
-single_optimal = cutree(hc_single_optimal, k = 10)
+# Hierarchical Clustering with K = 2 (Tony and Zach)
 
-# Silhouette for single linkage (Best Linkage)
-sil_single_optimal = silhouette(single_optimal, dist(ObesityScaled))
-fviz_silhouette(sil_single_optimal) +
+# Single linkage
+hc_single = hclust(dist(ObesityScaled), method = "single")
+plot(hc_single, labels=FALSE, main="Single Linkage")
+single = cutree(hc_single, k = 2)
+
+# Complete linkage
+hc_complete = hclust(dist(ObesityScaled), method = "complete")
+plot(hc_complete, labels=FALSE, main="Complete Linkage")
+complete = cutree(hc_complete, k = 2)
+
+# Average linkage
+hc_average = hclust(dist(ObesityScaled), method = "average")
+plot(hc_average, labels=FALSE, main="Average Linkage")
+average = cutree(hc_average, k = 2)
+
+# Centroid Linkage (Best Linkage)
+hc_centroid = hclust(dist(ObesityScaled), method = "centroid")
+plot(hc_centroid, labels=FALSE, main="Centroid Linkage")
+centroid = cutree(hc_centroid, k = 2)
+
+
+# Silhouette for single linkage 
+sil_single = silhouette(single, dist(ObesityScaled))
+fviz_silhouette(sil_single)
+mean(sil_single[,3])
+
+# Silhouette for complete linkage
+sil_complete = silhouette(complete, dist(ObesityScaled))
+fviz_silhouette(sil_complete)
+mean(sil_complete[,3])
+
+# Silhouette for average linkage
+sil_average = silhouette(average, dist(ObesityScaled))
+fviz_silhouette(sil_average)
+mean(sil_average[,3])
+
+# Silhouette for centroid linkage (Best Linkage)
+sil_centroid = silhouette(centroid, dist(ObesityScaled))
+fviz_silhouette(sil_centroid)
+mean(sil_centroid[,3])
+
+
+# Optimal clustering
+# Hierarchical Clustering K = 2 with Centroid Linkage on Full Dataset
+hc_centroid_optimal = hclust(dist(ObesityScaled), method = "centroid")
+plot(hc_centroid_optimal, labels=FALSE, main="Centroid Linkage")
+centroid_optimal = cutree(hc_centroid_optimal, k = 2)
+
+# Silhouette Plot of Optimal Cluster
+sil_centroid_optimal = silhouette(centroid_optimal, dist(ObesityScaled))
+fviz_silhouette(sil_centroid_optimal) +
   theme(
     text = element_text(size = 20),        
     axis.title = element_text(size = 20),  
@@ -328,30 +330,109 @@ fviz_silhouette(sil_single_optimal) +
     legend.text = element_text(size = 30),
     plot.title = element_text(size = 40)
   )
-mean(sil_single_optimal[,3])
+mean(sil_centroid_optimal[,3])
 
 
-# Posthoc Analyis
+
+# Hierarchical Clustering for a Subset of the Data (Tony and Zach)
+ObesitySubset = ObesityScaled[1:350, ]
+
+
+# Single linkage (First 350 Observations)
+hc_single_350 = hclust(dist(ObesitySubset), method = "single")
+plot(hc_single_350, labels=FALSE, main="Single Linkage (First 350 Observations)")
+single_350 = cutree(hc_single_350, k = 2)
+
+# Complete linkage (First 350 Observations)
+hc_complete_350 = hclust(dist(ObesitySubset), method = "complete")
+plot(hc_complete_350, labels=FALSE, main="Complete Linkage (First 350 Observations)")
+complete_350 = cutree(hc_complete_350, k = 2)
+
+# Average linkage (First 350 Observations)
+hc_average_350 = hclust(dist(ObesitySubset), method = "average")
+plot(hc_average_350, labels=FALSE, main="Average Linkage (First 350 Observations)")
+average_350 = cutree(hc_average_350, k = 2)
+
+# Centroid linkage (First 350 Observations)
+hc_centroid_350 = hclust(dist(ObesitySubset), method = "centroid")
+plot(hc_centroid_350, labels=FALSE, main="Centroid Linkage (First 350 Observations)")
+centroid_350 = cutree(hc_centroid_350, k = 2)
+
+
+# Silhouette for single linkage (Subset)
+sil_single_350 = silhouette(single_350, dist(ObesitySubset))
+fviz_silhouette(sil_single_350)
+mean(sil_single_350[,3])
+
+# Silhouette for complete linkage (Subset)
+sil_complete_350 = silhouette(complete_350, dist(ObesitySubset))
+fviz_silhouette(sil_complete_350)
+mean(sil_complete_350[,3])
+
+# Silhouette for average linkage (Subset)
+sil_average_350 = silhouette(average_350, dist(ObesitySubset))
+fviz_silhouette(sil_average_350)
+mean(sil_average_350[,3])
+
+# Silhouette for centroid linkage (Subset) (Best Linkage)
+sil_centroid_350 = silhouette(centroid_350, dist(ObesitySubset))
+fviz_silhouette(sil_centroid_350)
+mean(sil_centroid_350[,3])
+
+
+# Optimal clustering
+# Hierarchical Clustering K = 2 with Centroid Linkage on Subset of Data
+hc_centroid_350_optimal = hclust(dist(ObesitySubset), method = "centroid")
+plot(hc_centroid_350_optimal, labels=FALSE, main="Centroid Linkage (First 350 Observations)")
+centroid_350_optimal = cutree(hc_centroid_350_optimal, k = 2)
+
+# Silhouette Plot of Optimal Cluster
+sil_centroid_350_optimal = silhouette(centroid_350_optimal, dist(ObesitySubset))
+fviz_silhouette(sil_centroid_350_optimal) +
+  theme(
+    text = element_text(size = 20),        
+    axis.title = element_text(size = 20),  
+    axis.text = element_text(size = 20),   
+    legend.title = element_text(size = 30),
+    legend.text = element_text(size = 30),
+    plot.title = element_text(size = 40)
+  )
+mean(sil_centroid_350_optimal[,3])
+
+
+
+# Posthoc Analyis (Tony and Zach)
 
 # Better Model?
 
 # K-Means Clustering
-sil = silhouette(km.optimal$cluster, dist(ObesityScaled))
-mean(sil[,3])
+sil_km = silhouette(km.optimal$cluster, dist(ObesityScaled))
+mean(sil_km[,3])
 
 # Hierarchical Clustering
-sil_single_optimal = silhouette(single_optimal, dist(ObesityScaled))
-mean(sil_single_optimal[,3])
+sil_centroid_optimal = silhouette(centroid_optimal, dist(ObesityScaled))
+mean(sil_centroid_optimal[,3])
+
+# Hierarchical Clustering for Subet of Data
+sil_centroid_350_optimal = silhouette(centroid_350_optimal, dist(ObesitySubset))
+mean(sil_centroid_350_optimal[,3])
 
 
 # External Validation (External Labels)
 external_labels = Obesity$NObeyesdad
+external_labels_subset = Obesity$NObeyesdad[1:350]
 
+# K-Means Clustering
 table(km.optimal$cluster, external_labels)
 adjustedRandIndex(km.optimal$cluster, external_labels)
 
-table(single_optimal, external_labels)
-adjustedRandIndex(single_optimal, external_labels)
+# Hierarchical Clustering
+table(centroid_optimal, external_labels)
+adjustedRandIndex(centroid_optimal, external_labels)
+
+# Hierarchical clustering on subset of data
+table(centroid_350_optimal, external_labels_subset)
+adjustedRandIndex(centroid_350_optimal, external_labels_subset)
 
 
 
